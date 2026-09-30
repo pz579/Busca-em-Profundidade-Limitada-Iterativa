@@ -19,111 +19,153 @@ int ehPrimo(int numero) //nome do comando é ehPrimo e ele verifica um numero
 
 int main()
 {
-    //Criando as variáveis que formarão a fila
-    int a,b,c,d,e;  //TODO: fazer FILA sem usar varias variáveis, aumentar o tamanho pra 10
-    int atendido;
-    int dir, esq;
-    int incompleto = 0;  //FLAG, levantamos a bandeira se houver um problema
-    int filaVazia;
+    // Pilha com 20 posições
+    int pilha[20];
 
-    printf("Por favor digite a posicao do boneco (0-100): "); //perguntar
-    scanf("%d",&a); //armazenar em a
+    // Profundidade de cada estado
+    int profundidade[20];
 
-    //esvaziar o restante
-    b = -1;
-    c = -1;
-    d = -1;
-    e = -1;
+    int inicio;
+    int topo;
 
-    printf("FILA INICIAL:\t|%d|%d|%d|%d|%d|\n", a,b,c,d,e);
+    int estado;
+    int prof;
 
-    filaVazia = 0;   //Sabemos que a fila não está vazia aqui, lembrando que 0 é FALSO
+    int dir;
+    int esq;
 
-    while (filaVazia == 0)
+    int limite = 0;
+    int encontrou = 0;
+
+    printf("Digite a posicao do boneco (0-100): ");
+    scanf("%d", &inicio);
+
+    // Busca em profundidade limitada iterativa
+    while (encontrou == 0)
     {
-        atendido = a;
-        a=b; b=c; c=d; d=e; e=-1;
+        printf("\n==============================\n");
+        printf("LIMITE DE PROFUNDIDADE: %d\n", limite);
+        printf("==============================\n");
 
-        printf("Atendido: %d\n", atendido);
-        printf("FILA DEPOIS:\t|%d|%d|%d|%d|%d|\n", a,b,c,d,e);
+        // Pilha começa vazia
+        topo = 0;
 
-        //printf("Testando a anotacao dos primos\n");
-        int aux = ehPrimo(atendido);  //se for 1 é primo se for 0 não é
-        if (aux == 1)
+        // Coloca o estado inicial na pilha
+        pilha[topo] = inicio;
+        profundidade[topo] = 0;
+        topo++;
+
+        printf("\nPILHA:\n");
+
+        for (int i = 0; i < topo; i++)
         {
-            if (incompleto)
+            printf("| %d (%d) | ", pilha[i], profundidade[i]);
+        }
+
+        printf("\n");
+
+        while (topo > 0)
+        {
+            // Retira o ultimo elemento da pilha
+            topo--;
+
+            estado = pilha[topo];
+            prof = profundidade[topo];
+
+            printf("\nRetirado: %d | Profundidade: %d\n", estado, prof);
+
+            printf("PILHA:\n");
+
+            if (topo == 0)
             {
-                printf("%d eh Primo, MAS CUIDADO, pulamos alguns numeros");
+                printf("| vazia |");
             }
             else
             {
-                printf("%d eh a solucao!");
-            }
-            return 0;
-        }
-        else //atendido não é solução
-        {
-            //Adicionando os próximos estados na fila
-            dir = atendido +2;
-            esq = atendido -5;
-
-            //Evitar esses if aninhados HORRIVEIS!!!!1!!!
-            if (a == -1)
-            {
-                a = dir;
-                b = esq;
-            }
-            else //a nao esta vazio
-                if (b == -1)
+                for (int i = 0; i < topo; i++)
                 {
-                    b = dir;
-                    c = esq;
+                    printf("| %d (%d) | ", pilha[i], profundidade[i]);
                 }
-                else  //do b para tras nao esta vazio
-                    if (c == -1)
+            }
+
+            printf("\n");
+
+            // Verifica se encontrou um primo
+            if (ehPrimo(estado) == 1)
+            {
+                printf("\n%d eh a solucao!\n", estado);
+                printf("Profundidade: %d\n", prof);
+
+                encontrou = 1;
+                break;
+            }
+
+            // Se chegou ao limite, nao cria novos estados
+            if (prof == limite)
+            {
+                printf("Limite de profundidade atingido.\n");
+                continue;
+            }
+
+            // Movimento para a direita
+            dir = estado + 2;
+
+            if (dir <= 100)
+            {
+                if (topo < 20)
+                {
+                    pilha[topo] = dir;
+                    profundidade[topo] = prof + 1;
+                    topo++;
+
+                    printf("\nEmpilhando: %d (%d)\n", dir, prof + 1);
+
+                    printf("PILHA:\n");
+
+                    for (int i = 0; i < topo; i++)
                     {
-                        c = dir;
-                        d = esq;
+                        printf("| %d (%d) | ", pilha[i], profundidade[i]);
                     }
-                else  //do c para tras nao esta vazio
-                    if (d == -1)
+
+                    printf("\n");
+                }
+            }
+
+            // Movimento para a esquerda
+            esq = estado - 5;
+
+            if (esq >= 0)
+            {
+                if (topo < 20)
+                {
+                    pilha[topo] = esq;
+                    profundidade[topo] = prof + 1;
+                    topo++;
+
+                    printf("\nEmpilhando: %d (%d)\n", esq, prof + 1);
+
+                    printf("PILHA:\n");
+
+                    for (int i = 0; i < topo; i++)
                     {
-                        d = dir;
-                        e = esq;
-                    }
-                else   //do d para tras nao esta vazio
-                    if (e == -1)
-                    {
-                        e = dir;
-                        incompleto = 1; //lembrando programa de que um valor nao entrou na fila
-                    }
-                else
-                    {
-                        incompleto = 1; //lembrando programa de que um valor nao entrou na fila
+                        printf("| %d (%d) | ", pilha[i], profundidade[i]);
                     }
 
+                    printf("\n");
+                }
+            }
+        }
 
+        // Aumenta o limite da busca
+        limite++;
 
-
-        } // fim atendido nao eh solucao
-
-        printf("\nFILA(%d):\t|%d|%d|%d|%d|%d|\n", incompleto, a,b,c,d,e);
-
-        if (a == -1) //Se a fila estiver vazia anotar pra parar o while
+        // Evita limite infinito
+        if (limite > 100)
         {
-            filaVazia=1;
+            printf("\nNao encontramos solucao!\n");
+            break;
         }
     }
-
-    if (incompleto)
-    {
-        printf("Não encontramos solução! MAS não pudemos testar todas elas!");
-    }
-    else
-    {
-        printf("Não encontramos solução!");
-    }
-
 
     return 0;
 }
